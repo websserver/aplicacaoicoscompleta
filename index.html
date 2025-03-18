@@ -12,12 +12,20 @@
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         <!-- Definimos o marcador que será reconhecido -->
         <a-marker type="pattern" url="patterns/hilo-pattern.patt">
-            <!-- O modelo 3D que será exibido quando o marcador for detectado -->
-            <a-entity position="0 0 0" 
-                      rotation="0 0 0" 
-                      scale="0.05 0.05 0.05" 
-                      gltf-model="models/hilo3dmodel.glb"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
+            <!-- Cubo 3D vermelho girando -->
+            <a-box position="0 0.5 0" 
+                   rotation="0 45 45" 
+                   material="color: red;"
+                   animation="property: rotation; to: 360 360 360; dur: 2000; easing: linear; loop: true">
+            </a-box>
+            
+            <!-- Texto 3D -->
+            <a-text value="HiLo Card Detectado!" 
+                    position="0 1.5 0" 
+                    align="center" 
+                    color="blue"
+                    scale="1 1 1">
+            </a-text>
         </a-marker>
         
         <!-- Câmera -->
