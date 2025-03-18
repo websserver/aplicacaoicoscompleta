@@ -1,1 +1,89 @@
- 
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Marcador HiLo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .print-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .marker-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #ccc;
+        }
+        .marker-svg {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            display: block;
+        }
+        .instructions {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .marker-svg {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <h1>Marcador HiLo para Realidade Aumentada</h1>
+        <button onclick="window.print()" class="print-button">Imprimir Marcador</button>
+    </div>
+
+    <div class="marker-container">
+        <svg class="marker-svg" viewBox="0 0 16 16">
+            <rect x="0" y="0" width="16" height="16" fill="white"/>
+            <!-- Borda externa -->
+            <rect x="4" y="4" width="8" height="8" fill="black"/>
+            <!-- Padrão interno -->
+            <rect x="5" y="5" width="2" height="2" fill="white"/>
+            <rect x="7" y="5" width="2" height="2" fill="white"/>
+            <rect x="5" y="7" width="2" height="2" fill="white"/>
+            <rect x="7" y="7" width="2" height="2" fill="white"/>
+        </svg>
+    </div>
+
+    <div class="instructions no-print">
+        <h2>Instruções:</h2>
+        <ol>
+            <li>Clique no botão "Imprimir Marcador" acima</li>
+            <li>Imprima em papel branco com boa qualidade</li>
+            <li>Certifique-se que a impressão está nítida e com bom contraste</li>
+            <li>Evite dobras ou vincos no papel</li>
+            <li>Use o marcador numa superfície plana e bem iluminada</li>
+            <li>Aceda à aplicação AR em: 
+                <a href="https://websserver.github.io/aplicacaoicoscompleta/">https://websserver.github.io/aplicacaoicoscompleta/</a></li>
+            <li>Aponte a câmera do seu dispositivo para o marcador impresso</li>
+        </ol>
+    </div>
+</body>
+</html> 
