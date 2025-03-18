@@ -38,17 +38,51 @@
             background: rgba(255,0,0,0.8);
             color: white;
         }
+        #debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            font-family: monospace;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
     <div id="loading">A carregar a experiência AR...</div>
     <div id="status" class="lost">Procurando marcador...</div>
+    <div id="debug"></div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
-        <a-marker type="pattern" url="patterns/hilo-pattern.patt" emitevents="true" cursor="rayOrigin: mouse">
-            <a-box position="0 0.5 0" material="color: red" animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
-            <a-text value="Marcador HiLo detectado!" position="0 1 0" align="center" color="#FFFFFF" scale="0.5 0.5 0.5"></a-text>
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; patternRatio: 0.75;">
+        <a-marker type="pattern" 
+                  url="patterns/hilo-pattern.patt" 
+                  emitevents="true" 
+                  cursor="rayOrigin: mouse"
+                  smooth="true"
+                  smoothCount="10"
+                  smoothTolerance="0.01"
+                  smoothThreshold="5">
+            
+            <a-entity position="0 0.5 0">
+                <!-- Cubo vermelho girando -->
+                <a-box position="0 0 0" 
+                       material="color: red" 
+                       animation="property: rotation; to: 0 360 0; loop: true; dur: 2000">
+                </a-box>
+                
+                <!-- Texto flutuante -->
+                <a-text value="Marcador HiLo detectado!" 
+                        position="0 1 0" 
+                        align="center" 
+                        color="#FFFFFF" 
+                        scale="0.5 0.5 0.5"
+                        animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
+                </a-text>
+            </a-entity>
         </a-marker>
+        
         <a-entity camera></a-entity>
     </a-scene>
 
@@ -62,23 +96,46 @@
         window.addEventListener('load', function() {
             const loading = document.querySelector('#loading');
             const status = document.querySelector('#status');
+            const debug = document.querySelector('#debug');
             const marker = document.querySelector('a-marker');
+            let isMarkerVisible = false;
 
             // Remove loading message after 3 seconds
             setTimeout(() => {
                 loading.style.display = 'none';
             }, 3000);
 
-            // Update status when marker is found/lost
+            // Update status and debug info when marker is found/lost
             marker.addEventListener('markerFound', () => {
+                isMarkerVisible = true;
                 status.className = 'found';
                 status.textContent = 'Marcador HiLo detectado!';
+                updateDebugInfo();
             });
 
             marker.addEventListener('markerLost', () => {
+                isMarkerVisible = false;
                 status.className = 'lost';
                 status.textContent = 'Procurando marcador...';
+                updateDebugInfo();
             });
+
+            // Update debug information
+            function updateDebugInfo() {
+                if (!marker) return;
+                
+                const world = marker.object3D.getWorldPosition();
+                const rotation = marker.object3D.rotation;
+                
+                debug.innerHTML = `
+                    Marcador visível: ${isMarkerVisible}<br>
+                    Posição: x=${world.x.toFixed(2)} y=${world.y.toFixed(2)} z=${world.z.toFixed(2)}<br>
+                    Rotação: x=${rotation.x.toFixed(2)} y=${rotation.y.toFixed(2)} z=${rotation.z.toFixed(2)}
+                `;
+            }
+
+            // Update debug info periodically
+            setInterval(updateDebugInfo, 100);
         });
     </script>
 </body>
