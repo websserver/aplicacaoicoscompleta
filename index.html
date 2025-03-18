@@ -47,6 +47,20 @@
             padding: 10px;
             font-family: monospace;
             z-index: 9999;
+            max-width: 80%;
+            overflow-wrap: break-word;
+        }
+        #error {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: red;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            font-family: monospace;
+            z-index: 9999;
+            max-width: 80%;
+            overflow-wrap: break-word;
         }
     </style>
 </head>
@@ -54,52 +68,10 @@
     <div id="loading">A carregar a experiência AR...</div>
     <div id="status" class="lost">Procurando marcador...</div>
     <div id="debug"></div>
+    <div id="error"></div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; patternRatio: 0.75;">
-        <a-assets>
-            <a-asset-item id="cube-obj" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/models/cube.obj"></a-asset-item>
-        </a-assets>
-
-        <a-marker type="pattern" 
-                  url="patterns/hilo-pattern.patt" 
-                  emitevents="true" 
-                  cursor="rayOrigin: mouse"
-                  smooth="true"
-                  smoothCount="10"
-                  smoothTolerance="0.01"
-                  smoothThreshold="5"
-                  raycaster="objects: .clickable"
-                  preset="custom">
-            
-            <a-entity position="0 0.5 0">
-                <!-- Modelo 3D principal -->
-                <a-entity
-                    geometry="primitive: box; width: 1; height: 1; depth: 1"
-                    material="color: #FF0000; metalness: 0.8; roughness: 0.2"
-                    position="0 0 0"
-                    rotation="0 45 0"
-                    scale="0.5 0.5 0.5"
-                    class="clickable"
-                    animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
-                </a-entity>
-
-                <!-- Texto 3D -->
-                <a-entity
-                    text="value: HiLo Card Detectado!; align: center; width: 5; color: #FFFFFF; font: exo2bold"
-                    position="0 1 0"
-                    scale="1 1 1"
-                    animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
-                </a-entity>
-
-                <!-- Efeito de partículas -->
-                <a-entity position="0 0 0"
-                          particle-system="preset: dust; particleCount: 50; color: #FF0000,#FF5555">
-                </a-entity>
-            </a-entity>
-        </a-marker>
-        
-        <a-entity camera look-controls></a-entity>
-    </a-scene>
+    <!-- Scene será criada via JavaScript após verificações -->
+    <div id="scene-container"></div>
 
     <div class="ui-container">
         <div class="instructions">
@@ -108,50 +80,194 @@
     </div>
 
     <script>
+        // Função para verificar suporte a WebGL
+        function checkWebGLSupport() {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            
+            if (!gl) {
+                showError('WebGL não suportado neste navegador');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Função para mostrar erros
+        function showError(message) {
+            const errorDiv = document.querySelector('#error');
+            errorDiv.innerHTML += `${message}<br>`;
+            console.error(message);
+        }
+
+        // Função para criar a cena AR
+        function createARScene() {
+            const sceneContainer = document.querySelector('#scene-container');
+            sceneContainer.innerHTML = `
+                <a-scene embedded 
+                         arjs="sourceType: webcam; 
+                               debugUIEnabled: true; 
+                               detectionMode: mono_and_matrix; 
+                               matrixCodeType: 3x3; 
+                               patternRatio: 0.75;
+                               debug: true;">
+                    
+                    <a-assets>
+                        <a-asset-item id="cube-obj" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/models/cube.obj"></a-asset-item>
+                    </a-assets>
+
+                    <a-marker type="pattern" 
+                             url="patterns/hilo-pattern.patt" 
+                             emitevents="true" 
+                             cursor="rayOrigin: mouse"
+                             smooth="true"
+                             smoothCount="10"
+                             smoothTolerance="0.01"
+                             smoothThreshold="5"
+                             raycaster="objects: .clickable"
+                             preset="custom">
+                        
+                        <a-entity position="0 0.5 0">
+                            <!-- Modelo 3D principal -->
+                            <a-entity
+                                geometry="primitive: box; width: 1; height: 1; depth: 1"
+                                material="color: #FF0000; metalness: 0.8; roughness: 0.2"
+                                position="0 0 0"
+                                rotation="0 45 0"
+                                scale="0.5 0.5 0.5"
+                                class="clickable"
+                                animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
+                            </a-entity>
+
+                            <!-- Texto 3D -->
+                            <a-entity
+                                text="value: HiLo Card Detectado!; align: center; width: 5; color: #FFFFFF; font: exo2bold"
+                                position="0 1 0"
+                                scale="1 1 1"
+                                animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
+                            </a-entity>
+
+                            <!-- Efeito de partículas -->
+                            <a-entity position="0 0 0"
+                                      particle-system="preset: dust; particleCount: 50; color: #FF0000,#FF5555">
+                            </a-entity>
+                        </a-entity>
+                    </a-marker>
+                    
+                    <a-entity camera></a-entity>
+                </a-scene>
+            `;
+        }
+
+        // Função principal de inicialização
         window.addEventListener('load', function() {
-            const loading = document.querySelector('#loading');
-            const status = document.querySelector('#status');
-            const debug = document.querySelector('#debug');
-            const marker = document.querySelector('a-marker');
-            let isMarkerVisible = false;
+            try {
+                // Verificar suporte a WebGL
+                if (!checkWebGLSupport()) {
+                    return;
+                }
 
-            // Remove loading message after 3 seconds
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 3000);
+                // Verificar suporte a getUserMedia (câmera)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showError('API getUserMedia não suportada neste navegador');
+                    return;
+                }
 
-            // Update status and debug info when marker is found/lost
-            marker.addEventListener('markerFound', () => {
-                isMarkerVisible = true;
-                status.className = 'found';
-                status.textContent = 'Marcador HiLo detectado!';
-                updateDebugInfo();
-            });
+                // Criar cena AR
+                createARScene();
 
-            marker.addEventListener('markerLost', () => {
-                isMarkerVisible = false;
-                status.className = 'lost';
-                status.textContent = 'Procurando marcador...';
-                updateDebugInfo();
-            });
-
-            // Update debug information
-            function updateDebugInfo() {
-                if (!marker) return;
+                // Setup dos elementos da UI
+                const loading = document.querySelector('#loading');
+                const status = document.querySelector('#status');
+                const debug = document.querySelector('#debug');
                 
+                // Remover loading após 3 segundos
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 3000);
+
+                // Configurar eventos do marcador
+                const marker = document.querySelector('a-marker');
+                if (marker) {
+                    marker.addEventListener('markerFound', () => {
+                        status.className = 'found';
+                        status.textContent = 'Marcador HiLo detectado!';
+                        updateDebugInfo(marker, true);
+                    });
+
+                    marker.addEventListener('markerLost', () => {
+                        status.className = 'lost';
+                        status.textContent = 'Procurando marcador...';
+                        updateDebugInfo(marker, false);
+                    });
+                } else {
+                    showError('Marcador não encontrado no DOM');
+                }
+
+                // Configurar eventos de erro do A-Frame
+                const scene = document.querySelector('a-scene');
+                if (scene) {
+                    scene.addEventListener('loaded', () => {
+                        debug.innerHTML += 'Cena A-Frame carregada<br>';
+                    });
+
+                    scene.addEventListener('arjs-video-loaded', () => {
+                        debug.innerHTML += 'Vídeo AR.js carregado<br>';
+                    });
+
+                    scene.addEventListener('camera-error', (error) => {
+                        showError('Erro na câmera: ' + error);
+                    });
+
+                    scene.addEventListener('camera-started', () => {
+                        debug.innerHTML += 'Câmera iniciada<br>';
+                    });
+                } else {
+                    showError('Cena não encontrada no DOM');
+                }
+
+            } catch (error) {
+                showError('Erro na inicialização: ' + error.message);
+            }
+        });
+
+        // Função para atualizar informações de debug
+        function updateDebugInfo(marker, isVisible) {
+            const debug = document.querySelector('#debug');
+            if (!marker || !debug) return;
+
+            try {
                 const world = marker.object3D.getWorldPosition();
                 const rotation = marker.object3D.rotation;
-                
-                debug.innerHTML = `
-                    Marcador visível: ${isMarkerVisible}<br>
-                    Posição: x=${world.x.toFixed(2)} y=${world.y.toFixed(2)} z=${world.z.toFixed(2)}<br>
-                    Rotação: x=${rotation.x.toFixed(2)} y=${rotation.y.toFixed(2)} z=${rotation.z.toFixed(2)}
-                `;
-            }
+                const scale = marker.object3D.scale;
 
-            // Update debug info periodically
-            setInterval(updateDebugInfo, 100);
-        });
+                debug.innerHTML = `
+                    Status:<br>
+                    - Marcador visível: ${isVisible}<br>
+                    - WebGL ativo: ${!!document.querySelector('canvas')}<br>
+                    Posição:<br>
+                    - X: ${world.x.toFixed(2)}<br>
+                    - Y: ${world.y.toFixed(2)}<br>
+                    - Z: ${world.z.toFixed(2)}<br>
+                    Rotação:<br>
+                    - X: ${(rotation.x * 180 / Math.PI).toFixed(2)}°<br>
+                    - Y: ${(rotation.y * 180 / Math.PI).toFixed(2)}°<br>
+                    - Z: ${(rotation.z * 180 / Math.PI).toFixed(2)}°<br>
+                    Escala:<br>
+                    - X: ${scale.x.toFixed(2)}<br>
+                    - Y: ${scale.y.toFixed(2)}<br>
+                    - Z: ${scale.z.toFixed(2)}
+                `;
+            } catch (error) {
+                showError('Erro ao atualizar debug: ' + error.message);
+            }
+        }
+
+        // Capturar erros não tratados
+        window.onerror = function(msg, url, line, col, error) {
+            showError(`Erro: ${msg}\nLinha: ${line}\nColuna: ${col}`);
+            return false;
+        };
     </script>
 </body>
 </html> 
