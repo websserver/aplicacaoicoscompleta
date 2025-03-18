@@ -56,6 +56,10 @@
     <div id="debug"></div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; patternRatio: 0.75;">
+        <a-assets>
+            <a-asset-item id="cube-obj" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/models/cube.obj"></a-asset-item>
+        </a-assets>
+
         <a-marker type="pattern" 
                   url="patterns/hilo-pattern.patt" 
                   emitevents="true" 
@@ -63,27 +67,38 @@
                   smooth="true"
                   smoothCount="10"
                   smoothTolerance="0.01"
-                  smoothThreshold="5">
+                  smoothThreshold="5"
+                  raycaster="objects: .clickable"
+                  preset="custom">
             
             <a-entity position="0 0.5 0">
-                <!-- Cubo vermelho girando -->
-                <a-box position="0 0 0" 
-                       material="color: red" 
-                       animation="property: rotation; to: 0 360 0; loop: true; dur: 2000">
-                </a-box>
-                
-                <!-- Texto flutuante -->
-                <a-text value="Marcador HiLo detectado!" 
-                        position="0 1 0" 
-                        align="center" 
-                        color="#FFFFFF" 
-                        scale="0.5 0.5 0.5"
-                        animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
-                </a-text>
+                <!-- Modelo 3D principal -->
+                <a-entity
+                    geometry="primitive: box; width: 1; height: 1; depth: 1"
+                    material="color: #FF0000; metalness: 0.8; roughness: 0.2"
+                    position="0 0 0"
+                    rotation="0 45 0"
+                    scale="0.5 0.5 0.5"
+                    class="clickable"
+                    animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
+                </a-entity>
+
+                <!-- Texto 3D -->
+                <a-entity
+                    text="value: HiLo Card Detectado!; align: center; width: 5; color: #FFFFFF; font: exo2bold"
+                    position="0 1 0"
+                    scale="1 1 1"
+                    animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
+                </a-entity>
+
+                <!-- Efeito de partículas -->
+                <a-entity position="0 0 0"
+                          particle-system="preset: dust; particleCount: 50; color: #FF0000,#FF5555">
+                </a-entity>
             </a-entity>
         </a-marker>
         
-        <a-entity camera></a-entity>
+        <a-entity camera look-controls></a-entity>
     </a-scene>
 
     <div class="ui-container">
