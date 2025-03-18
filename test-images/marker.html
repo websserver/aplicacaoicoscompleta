@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HiLo Card Marker</title>
+    <title>HiLo Card para Impressão</title>
     <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .print-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -12,46 +28,110 @@
             min-height: 100vh;
             margin: 0;
             background: #f0f0f0;
+            font-family: Arial, sans-serif;
         }
+
+        .print-container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 20px;
+        }
+
         .marker-container {
             text-align: center;
+            page-break-inside: avoid;
         }
+
         .marker {
-            width: 300px;
-            height: 300px;
-            border: 2px solid black;
+            width: 200px;
+            height: 200px;
+            border: 3px solid black;
             margin: 20px auto;
             background: white;
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             grid-template-rows: repeat(8, 1fr);
         }
+
         .black {
             background: black;
         }
+
         .instructions {
             max-width: 600px;
             margin: 20px auto;
             padding: 20px;
+            text-align: left;
+        }
+
+        .print-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 20px;
+        }
+
+        .qr-code {
+            margin: 20px auto;
+            width: 150px;
+            height: 150px;
+        }
+
+        .card {
+            border: 2px solid black;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <div class="marker-container">
-        <h1>HiLo Card Marker de Teste</h1>
-        <div class="marker" id="marker"></div>
-        <div class="instructions">
-            <h2>Como usar:</h2>
-            <ol>
-                <li>Mantenha esta página aberta no seu computador ou tablet</li>
-                <li>Abra a aplicação AR em <a href="../index.html" target="_blank">outro dispositivo clicando aqui</a></li>
-                <li>Aponte a câmera do smartphone para este padrão</li>
-                <li>O modelo 3D deverá aparecer sobre o padrão</li>
-            </ol>
-            <p><strong>Nota:</strong> Para melhores resultados, você pode imprimir esta página.</p>
+    <div class="print-container">
+        <button onclick="window.print()" class="print-button no-print">Imprimir HiLo Card</button>
+        
+        <div class="card">
+            <div class="card-title">HiLo Card AR</div>
+            
+            <div class="marker-container">
+                <div class="marker" id="marker"></div>
+            </div>
+
+            <!-- QR Code que leva à aplicação AR -->
+            <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://websserver.github.io/aplicacaoicoscompleta/" alt="QR Code para a aplicação AR">
+            
+            <div class="instructions">
+                <h3>Instruções:</h3>
+                <ol>
+                    <li>Imprima este cartão em papel branco</li>
+                    <li>Escaneie o QR Code com seu smartphone para abrir a aplicação AR</li>
+                    <li>Permita o acesso à câmera quando solicitado</li>
+                    <li>Aponte a câmera para o padrão quadrado acima</li>
+                    <li>O modelo 3D aparecerá sobre o padrão</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="no-print instructions">
+            <p><strong>Dicas para impressão:</strong></p>
+            <ul>
+                <li>Use papel branco comum</li>
+                <li>Certifique-se de que a impressão está nítida e com bom contraste</li>
+                <li>Não dobre ou amasse o padrão quadrado</li>
+                <li>Mantenha o cartão em bom estado para melhor reconhecimento</li>
+            </ul>
         </div>
     </div>
 
