@@ -1,273 +1,61 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR.js HiLo Card Demo</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <link rel="stylesheet" href="style.css">
     <style>
-        #loading {
+        .arjs-loader {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 10px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 9999;
         }
-        #status {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 9999;
-        }
-        .found {
-            background: rgba(0,255,0,0.8);
+        .arjs-loader div {
+            text-align: center;
+            font-size: 1.25em;
             color: white;
-        }
-        .lost {
-            background: rgba(255,0,0,0.8);
-            color: white;
-        }
-        #debug {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            font-family: monospace;
-            z-index: 9999;
-            max-width: 80%;
-            overflow-wrap: break-word;
-        }
-        #error {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            color: red;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            font-family: monospace;
-            z-index: 9999;
-            max-width: 80%;
-            overflow-wrap: break-word;
         }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
-    <div id="loading">A carregar a experiência AR...</div>
-    <div id="status" class="lost">Procurando marcador...</div>
-    <div id="debug"></div>
-    <div id="error"></div>
-
-    <!-- Scene será criada via JavaScript após verificações -->
-    <div id="scene-container"></div>
-
-    <div class="ui-container">
-        <div class="instructions">
-            <p id="status">Aponte a câmera para um cartão HiLo para ver o modelo 3D</p>
-        </div>
+    <div class="arjs-loader">
+        <div>A carregar a experiência AR...</div>
     </div>
 
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <a-marker preset="custom" type="pattern" url="patterns/hilo-pattern.patt">
+            <a-box position="0 0.5 0" 
+                   material="color: red;" 
+                   scale="1 1 1"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000;">
+            </a-box>
+            <a-text value="HiLo Card Detectado!" 
+                    position="0 1.5 0" 
+                    align="center" 
+                    color="white"
+                    scale="1 1 1">
+            </a-text>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+
     <script>
-        // Função para verificar suporte a WebGL
-        function checkWebGLSupport() {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        window.addEventListener('load', function () {
+            const scene = document.querySelector('a-scene');
+            const loader = document.querySelector('.arjs-loader');
             
-            if (!gl) {
-                showError('WebGL não suportado neste navegador');
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Função para mostrar erros
-        function showError(message) {
-            const errorDiv = document.querySelector('#error');
-            errorDiv.innerHTML += `${message}<br>`;
-            console.error(message);
-        }
-
-        // Função para criar a cena AR
-        function createARScene() {
-            const sceneContainer = document.querySelector('#scene-container');
-            sceneContainer.innerHTML = `
-                <a-scene embedded 
-                         arjs="sourceType: webcam; 
-                               debugUIEnabled: true; 
-                               detectionMode: mono_and_matrix; 
-                               matrixCodeType: 3x3; 
-                               patternRatio: 0.75;
-                               debug: true;">
-                    
-                    <a-assets>
-                        <a-asset-item id="cube-obj" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/models/cube.obj"></a-asset-item>
-                    </a-assets>
-
-                    <a-marker type="pattern" 
-                             url="patterns/hilo-pattern.patt" 
-                             emitevents="true" 
-                             cursor="rayOrigin: mouse"
-                             smooth="true"
-                             smoothCount="10"
-                             smoothTolerance="0.01"
-                             smoothThreshold="5"
-                             raycaster="objects: .clickable"
-                             preset="custom">
-                        
-                        <a-entity position="0 0.5 0">
-                            <!-- Modelo 3D principal -->
-                            <a-entity
-                                geometry="primitive: box; width: 1; height: 1; depth: 1"
-                                material="color: #FF0000; metalness: 0.8; roughness: 0.2"
-                                position="0 0 0"
-                                rotation="0 45 0"
-                                scale="0.5 0.5 0.5"
-                                class="clickable"
-                                animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
-                            </a-entity>
-
-                            <!-- Texto 3D -->
-                            <a-entity
-                                text="value: HiLo Card Detectado!; align: center; width: 5; color: #FFFFFF; font: exo2bold"
-                                position="0 1 0"
-                                scale="1 1 1"
-                                animation="property: position; to: 0 1.2 0; dir: alternate; dur: 1000; easing: easeInOutQuad; loop: true">
-                            </a-entity>
-
-                            <!-- Efeito de partículas -->
-                            <a-entity position="0 0 0"
-                                      particle-system="preset: dust; particleCount: 50; color: #FF0000,#FF5555">
-                            </a-entity>
-                        </a-entity>
-                    </a-marker>
-                    
-                    <a-entity camera></a-entity>
-                </a-scene>
-            `;
-        }
-
-        // Função principal de inicialização
-        window.addEventListener('load', function() {
-            try {
-                // Verificar suporte a WebGL
-                if (!checkWebGLSupport()) {
-                    return;
-                }
-
-                // Verificar suporte a getUserMedia (câmera)
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    showError('API getUserMedia não suportada neste navegador');
-                    return;
-                }
-
-                // Criar cena AR
-                createARScene();
-
-                // Setup dos elementos da UI
-                const loading = document.querySelector('#loading');
-                const status = document.querySelector('#status');
-                const debug = document.querySelector('#debug');
-                
-                // Remover loading após 3 segundos
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 3000);
-
-                // Configurar eventos do marcador
-                const marker = document.querySelector('a-marker');
-                if (marker) {
-                    marker.addEventListener('markerFound', () => {
-                        status.className = 'found';
-                        status.textContent = 'Marcador HiLo detectado!';
-                        updateDebugInfo(marker, true);
-                    });
-
-                    marker.addEventListener('markerLost', () => {
-                        status.className = 'lost';
-                        status.textContent = 'Procurando marcador...';
-                        updateDebugInfo(marker, false);
-                    });
-                } else {
-                    showError('Marcador não encontrado no DOM');
-                }
-
-                // Configurar eventos de erro do A-Frame
-                const scene = document.querySelector('a-scene');
-                if (scene) {
-                    scene.addEventListener('loaded', () => {
-                        debug.innerHTML += 'Cena A-Frame carregada<br>';
-                    });
-
-                    scene.addEventListener('arjs-video-loaded', () => {
-                        debug.innerHTML += 'Vídeo AR.js carregado<br>';
-                    });
-
-                    scene.addEventListener('camera-error', (error) => {
-                        showError('Erro na câmera: ' + error);
-                    });
-
-                    scene.addEventListener('camera-started', () => {
-                        debug.innerHTML += 'Câmera iniciada<br>';
-                    });
-                } else {
-                    showError('Cena não encontrada no DOM');
-                }
-
-            } catch (error) {
-                showError('Erro na inicialização: ' + error.message);
-            }
+            scene.addEventListener('loaded', function () {
+                loader.style.display = 'none';
+            });
         });
-
-        // Função para atualizar informações de debug
-        function updateDebugInfo(marker, isVisible) {
-            const debug = document.querySelector('#debug');
-            if (!marker || !debug) return;
-
-            try {
-                const world = marker.object3D.getWorldPosition();
-                const rotation = marker.object3D.rotation;
-                const scale = marker.object3D.scale;
-
-                debug.innerHTML = `
-                    Status:<br>
-                    - Marcador visível: ${isVisible}<br>
-                    - WebGL ativo: ${!!document.querySelector('canvas')}<br>
-                    Posição:<br>
-                    - X: ${world.x.toFixed(2)}<br>
-                    - Y: ${world.y.toFixed(2)}<br>
-                    - Z: ${world.z.toFixed(2)}<br>
-                    Rotação:<br>
-                    - X: ${(rotation.x * 180 / Math.PI).toFixed(2)}°<br>
-                    - Y: ${(rotation.y * 180 / Math.PI).toFixed(2)}°<br>
-                    - Z: ${(rotation.z * 180 / Math.PI).toFixed(2)}°<br>
-                    Escala:<br>
-                    - X: ${scale.x.toFixed(2)}<br>
-                    - Y: ${scale.y.toFixed(2)}<br>
-                    - Z: ${scale.z.toFixed(2)}
-                `;
-            } catch (error) {
-                showError('Erro ao atualizar debug: ' + error.message);
-            }
-        }
-
-        // Capturar erros não tratados
-        window.onerror = function(msg, url, line, col, error) {
-            showError(`Erro: ${msg}\nLinha: ${line}\nColuna: ${col}`);
-            return false;
-        };
     </script>
 </body>
 </html> 
