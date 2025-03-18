@@ -33,14 +33,30 @@
             font-family: monospace;
             z-index: 1000;
         }
+        #screen-marker-link {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            z-index: 1000;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        #screen-marker-link:hover {
+            background: rgba(0, 0, 0, 1);
+        }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
     <div class="arjs-loader">
-        <div>A carregar a experiência AR...</div>
+        <div>A carregar a experiência AR...<br>Por favor, permita o acesso à câmera.</div>
     </div>
 
     <div id="debug">Status: À procura do marcador...</div>
+    <a href="test-images/hilo-screen.html" target="_blank" id="screen-marker-link">Abrir Marcador para Ecrã</a>
 
     <a-scene embedded
              vr-mode-ui="enabled: false"
@@ -49,15 +65,17 @@
                    sourceType: webcam; 
                    debugUIEnabled: false;
                    detectionMode: mono;
-                   patternRatio: 0.90;
-                   cameraParametersUrl: https://raw.githack.com/AR-js-org/AR.js/master/data/data/camera_para.dat">
+                   patternRatio: 0.75;
+                   cameraParametersUrl: https://raw.githack.com/AR-js-org/AR.js/master/data/data/camera_para.dat;
+                   imageSmoothingEnabled: true;
+                   maxDetectionRate: 60;">
         
         <a-marker type="pattern" 
                   url="patterns/hilo-pattern.patt"
                   smooth="true"
-                  smoothCount="10"
-                  smoothTolerance="0.01"
-                  smoothThreshold="2"
+                  smoothCount="5"
+                  smoothTolerance="0.02"
+                  smoothThreshold="3"
                   raycaster="objects: .clickable"
                   emitevents="true">
             
