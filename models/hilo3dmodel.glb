@@ -1,0 +1,10 @@
+NOTA: Este é apenas um arquivo de texto placeholder. 
+Em um cenário real, você precisaria fornecer um arquivo GLB real (binário) que 
+contém o modelo 3D que deseja exibir. 
+
+Para criar um modelo GLB real, você pode:
+1. Usar ferramentas como Blender para modelar e exportar em formato GLB
+2. Baixar modelos 3D gratuitos de sites como Sketchfab ou Google Poly
+3. Converter outros formatos para GLB usando ferramentas online
+
+Substitua este arquivo por um GLB real antes de usar a aplicação. 
